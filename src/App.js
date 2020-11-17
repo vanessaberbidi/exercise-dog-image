@@ -1,18 +1,17 @@
 import React from 'react';
 import './App.css';
-import './RenderDogs';
-import RenderDogs from './RenderDogs';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props)
     this.fetchDog = this.fetchDog.bind(this);
     this.handleEvent = this.handleEvent.bind(this);
+    this.saveDog = this.saveDog.bind(this);
     this.state = {
       message: '',
       error: null,
       name: '',
-      breedsDog: ''
+      array: []
     }
   }
 
@@ -37,20 +36,17 @@ export default class App extends React.Component {
     this.fetchDog();
   }
 
-  shouldComponentUpdate() {
-    if(this.state.message.includes('terrier')) {
-      console.log('false');
-      return false
-    } else {
-      console.log('true')
-      return true
-    }
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('should component update')
+    const { message } = nextState;
+    return !message.includes('terrier');
   }
 
   componentDidUpdate() {
-    localStorage.setItem(this.props.name, this.state.message);
+    localStorage.setItem('Dog', this.state.array);
     const dogBreed = this.state.message.split('/')[4];
-    console.log(dogBreed)
+    console.log(dogBreed);
+    localStorage.setItem("dogURL", JSON.stringify(this.state.array));
   }
 
   handleEvent({ target }) {
@@ -58,6 +54,17 @@ export default class App extends React.Component {
     this.setState({
       [name]: value,
     })
+  }
+
+  saveDog() {
+    const {
+      message,
+      name,
+      array
+    } = this.state;
+    const dogData = { message, name };
+    const newArray = [...array, dogData];
+    this.setState({ array: newArray, name: '' });
   }
 
   render() {
@@ -77,8 +84,10 @@ export default class App extends React.Component {
             onChange={this.handleEvent}
           />
         </div>
+        <div>
+          <button onClick={this.saveDog}>Save Dog</button>
+        </div>
         <img className="img-width" src={this.state.message} />
-        <div>{this.state.breedsDog}</div>
       </div>
     );
   }
